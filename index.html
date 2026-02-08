@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moja Digitálna Vizitka</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- CSS PREMENNÉ (Pre dynamickú zmenu farieb) --- */
+        :root {
+            --primary: #6366f1;       /* Hlavná farba */
+            --text-dark: #1f2937;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        /* --- ZÁKLADNÉ NASTAVENIA --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Animované gradientné pozadie */
+            background: linear-gradient(45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- HLAVNÝ KONTAJNER --- */
+        .container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        /* --- GLASSMORPHISM VIZITKA --- */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px); /* Efekt rozmazania */
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 15px;
+        }
+
+        h2 { color: var(--text-dark); margin-bottom: 5px; font-weight: 600; }
+        .job-title { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
+
+        /* --- QR KÓD SEKCIA --- */
+        #qrcode {
+            margin: 20px auto;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        #qrcode img {
+            display: block; /* Oprava medzery pod obrázkom */
+        }
+
+        /* --- TLAČIDLÁ --- */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        /* --- EDITOR (Skrytý) --- */
+        .editor {
+            display: none; /* Predvolene skryté */
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px; }
+        input {
+            width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 10px;
+            font-size: 1rem; outline: none; transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--primary); }
+        input[type="color"] { height: 40px; cursor: pointer; padding: 2px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="card-view" class="card">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200" alt="Profil" class="profile-img" id="display-img">
+            
+            <h2 id="display-name">Meno Priezvisko</h2>
+            <div class="job-title" id="display-job">Pracovná pozícia</div>
+
+            <div id="qrcode"></div>
+
+            <br>
+            <button class="btn" onclick="toggleEditor()">
+                <i class="fas fa-edit"></i> Upraviť vizitku
+            </button>
+        </div>
+
+        <div id="editor-view" class="editor">
+            <h3><i class="fas fa-cog"></i> Nastavenia</h3>
+            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+
+            <div class="form-group">
+                <label>Meno a Priezvisko</label>
+                <input type="text" id="input-name" placeholder="napr. Ján Novák">
+            </div>
+            <div class="form-group">
+                <label>Pracovná pozícia</label>
+                <input type="text" id="input-job" placeholder="napr. Manažér">
+            </div>
+            <div class="form-group">
+                <label>Telefón (Medzinárodný formát)</label>
+                <input type="tel" id="input-phone" placeholder="+421 900 000 000">
+            </div>
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="input-email" placeholder="email@domena.sk">
+            </div>
+            <div class="form-group">
+                <label>Farba témy (Live Náhľad)</label>
+                <input type="color" id="input-color" value="#6366f1" oninput="previewTheme()">
+            </div>
+
+            <button class="btn" style="width: 100%; justify-content: center;" onclick="saveData()">
+                <i class="fas fa-save"></i> Uložiť a Generovať
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // --- JAVASCRIPT LOGIKA ---
+
+        // 1. Inicializácia premenných
+        const qrContainer = document.getElementById('qrcode');
+        let qrCodeObj = null; // Premenná pre inštanciu QR kódu
+
+        // 2. Načítanie dát pri štarte (LocalStorage)
+        window.onload = function() {
+            const savedData = localStorage.getItem('myBizCard_Data');
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                // Vyplnenie vizitky
+                updateUI(data);
+                // Vyplnenie editora
+                fillInputs(data);
+                // Nastavenie farby
+                document.documentElement.style.setProperty('--primary', data.color);
+            } else {
+                // Predvolené dáta pre prvé spustenie
+                generateQR({
+                    name: "Vaše Meno",
+                    job: "Vaša Pozícia",
+                    phone: "",
+                    email: "",
+                    color: "#6366f1"
+                });
+            }
+        };
+
+        // 3. Funkcia na generovanie QR kódu (vCard 3.0 + UTF-8 Fix)
+        function generateQR(data) {
+            // Vyčistenie starého kódu
+            qrContainer.innerHTML = "";
+
+            // Formát vCard (Riešenie problému s diakritikou pomocou CHARSET=UTF-8)
+            const vCardData = `BEGIN:VCARD
+VERSION:3.0
+N;CHARSET=UTF-8:${data.name};;;;
+FN;CHARSET=UTF-8:${data.name}
+ORG;CHARSET=UTF-8:${data.job}
+TEL;TYPE=CELL:${data.phone}
+EMAIL:${data.email}
+END:VCARD`;
+
+            // Vytvorenie nového kódu pomocou knižnice
+            new QRCode(qrContainer, {
+                text: vCardData,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // Vysoká korekcia chýb
+            });
+        }
+
+        // 4. Funkcia ULOŽIŤ (Serializácia do JSON)
+        function saveData() {
+            const data = {
+                name: document.getElementById('input-name').value || "Bez mena",
+                job: document.getElementById('input-job').value,
+                phone: document.getElementById('input-phone').value,
+                email: document.getElementById('input-email').value,
+                color: document.getElementById('input-color').value
+            };
+
+            // Uloženie do prehliadača
+            localStorage.setItem('myBizCard_Data', JSON.stringify(data));
+
+            // Aktualizácia rozhrania
+            updateUI(data);
+            
+            // Zatvorenie editora a spätná väzba
+            alert("Vizitka bola úspešne uložená!");
+            document.getElementById('editor-view').style.display = 'none';
+        }
+
+        // 5. Pomocné funkcie pre UI
+        function updateUI(data) {
+            document.getElementById('display-name').innerText = data.name;
+            document.getElementById('display-job').innerText = data.job;
+            generateQR(data);
+        }
+
+        function fillInputs(data) {
+            document.getElementById('input-name').value = data.name;
+            document.getElementById('input-job').value = data.job;
+            document.getElementById('input-phone').value = data.phone;
+            document.getElementById('input-email').value = data.email;
+            document.getElementById('input-color').value = data.color;
+        }
+
+        // 6. Live Náhľad farby (Okamžitá zmena CSS premennej)
+        function previewTheme() {
+            const color = document.getElementById('input-color').value;
+            document.documentElement.style.setProperty('--primary', color);
+        }
+
+        // 7. Bezpečnosť (Heslo pre editor)
+        function toggleEditor() {
+            const editor = document.getElementById('editor-view');
+            
+            if (editor.style.display === 'none' || editor.style.display === '') {
+                // Pýtanie hesla
+                const password = prompt("Zadajte heslo pre úpravu (admin123):");
+                if (password === "admin123") {
+                    editor.style.display = 'block';
+                    // Scroll na editor
+                    editor.scrollIntoView({behavior: "smooth"});
+                } else {
+                    alert("Nesprávne heslo!");
+                }
+            } else {
+                editor.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
